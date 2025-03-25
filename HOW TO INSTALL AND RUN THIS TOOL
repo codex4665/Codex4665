@@ -1,0 +1,6 @@
+cd /home/username/Desktop/Kali Linux Updater & System Maintenance Tool/
+python3 -m venv myenv
+source myenv/bin/activate
+pip install requests
+chmod +x Codex.py
+sudo python3 Codex.py
