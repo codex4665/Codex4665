@@ -1,10 +1,13 @@
 import os
 import subprocess
-import distro  # مكتبة لاكتشاف توزيعة النظام
-import time
-from termcolor import colored  # مكتبة لإضافة ألوان للنصوص في الطرفية
+import psutil
+import distro
+import socket
+import getpass
+from InquirerPy import inquirer
+from termcolor import colored
 
-# CODEX Banner
+# 🟣 Banner
 BANNER = """
  ██████╗ ██████╗ ██████╗ ███████╗██╗  ██╗
 ██╔════╝██╔═══██╗██╔══██╗██╔════╝╚██╗██╔╝
@@ -12,83 +15,130 @@ BANNER = """
 ██║     ██║   ██║██║  ██║██╔══╝   ██╔██╗ 
 ╚██████╗╚██████╔╝██████╔╝███████╗██╔╝ ██╗
  ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝
-  Kali Linux Updater & System Maintenance Tool
+   CODEX v3 – Terminal Linux Maintainer
 """
 
-# Function to detect the system distribution
-def detect_system():
-    distro_name = distro.id().lower()  # استخدام مكتبة distro لاكتشاف التوزيعة
-    if "kali" in distro_name:
-        return "Kali Linux"
-    elif "ubuntu" in distro_name:
-        return "Ubuntu"
-    elif "debian" in distro_name:
-        return "Debian"
-    else:
-        return "Other Linux"
-
-# Loading effect function
-def loading(message):
-    for char in message:
-        print(char, end='', flush=True)
-        time.sleep(0.05)  # simulate typing effect
-    print()
-
-# Function to update Kali Linux
-def update_kali():
-    print(colored("[*] Starting Kali Linux update process...", "yellow"))
-    
-    try:
-        # Display the contents of /etc/apt/sources.list
-        loading(colored("[*] Displaying /etc/apt/sources.list...", "cyan"))
-        subprocess.run(["cat", "/etc/apt/sources.list"], check=True)
-        
-        # Update the package list
-        loading(colored("[*] Running 'sudo apt update'...", "cyan"))
-        subprocess.run(["sudo", "apt", "update"], check=True)
-        
-        # Upgrade installed packages
-        loading(colored("[*] Running 'sudo apt upgrade -y'...", "cyan"))
-        subprocess.run(["sudo", "apt", "upgrade", "-y"], check=True)
-        
-        # Perform a full upgrade
-        loading(colored("[*] Running 'sudo apt full-upgrade -y'...", "cyan"))
-        subprocess.run(["sudo", "apt", "full-upgrade", "-y"], check=True)
-        
-        # Perform a distribution upgrade
-        loading(colored("[*] Running 'sudo apt dist-upgrade -y'...", "cyan"))
-        subprocess.run(["sudo", "apt", "dist-upgrade", "-y"], check=True)
-        
-        # Remove unused packages
-        loading(colored("[*] Running 'sudo apt autoremove -y'...", "cyan"))
-        subprocess.run(["sudo", "apt", "autoremove", "-y"], check=True)
-        
-        # Clean up package cache
-        loading(colored("[*] Running 'sudo apt clean -y'...", "cyan"))
-        subprocess.run(["sudo", "apt", "clean", "-y"], check=True)
-        
-        print(colored("[+] Kali Linux update completed successfully!", "green"))
-    except subprocess.CalledProcessError as e:
-        print(colored(f"[-] Error during update process: {e}", "red"))
-
-# Function to display a box with text
-def print_box(message):
-    print(colored("+" + "-"*(len(message)+2) + "+", "magenta"))
-    print(colored("| " + message + " |", "magenta"))
-    print(colored("+" + "-"*(len(message)+2) + "+", "magenta"))
-
-# Main function
-def main():
-    # عرض Banner عند بداية تشغيل الأداة
+# 🔁 Reset screen
+def reset_screen():
+    os.system("clear")
     print(colored(BANNER, "magenta"))
 
-    # كشف نوع النظام قبل البدء
-    system_type = detect_system()
-    print_box(f"[+] Detected system: {system_type}")  # عرض نوع النظام داخل صندوق جميل
-    print("="*50)  # خط فاصل لتنسيق المخرجات
+# 🟢 Detect Distro
+def detect_system():
+    name = distro.id().lower()
+    if "kali" in name:
+        return "Kali Linux"
+    elif "ubuntu" in name:
+        return "Ubuntu"
+    elif "debian" in name:
+        return "Debian"
+    else:
+        return "Other"
 
-    # البدء في تحديث النظام
-    update_kali()
+# 🔐 Root Check
+def is_root():
+    return os.geteuid() == 0
+
+# 🌐 Internet Check
+def check_internet():
+    try:
+        socket.create_connection(("8.8.8.8", 53), timeout=2)
+        return True
+    except:
+        return False
+
+# 📊 System Info
+def system_info():
+    print(colored("\n📋 System Information:", "cyan"))
+    print(colored(f"🖥️  User: {getpass.getuser()}", "green"))
+    print(colored(f"🧠 RAM Usage: {psutil.virtual_memory().percent}%", "green"))
+    print(colored(f"💾 Disk Usage: {psutil.disk_usage('/').percent}%", "green"))
+    print(colored(f"🌐 Internet: {'Connected' if check_internet() else 'Disconnected'}", "green"))
+    print(colored(f"📦 OS: {detect_system()}", "green"))
+    input(colored("\n🔁 Press Enter to return to main menu...", "cyan"))
+    reset_screen()
+
+# 🔄 Update System
+def update_system():
+    print(colored("\n🔄 Updating system...\n", "yellow"))
+    cmds = [
+        ["sudo", "apt", "update"],
+        ["sudo", "apt", "upgrade", "-y"],
+        ["sudo", "apt", "full-upgrade", "-y"],
+        ["sudo", "apt", "dist-upgrade", "-y"]
+    ]
+    for cmd in cmds:
+        print(colored(f"[+] {' '.join(cmd)}", "cyan"))
+        subprocess.run(cmd)
+    input(colored("\n✅ Update complete. Press Enter to return to menu...", "cyan"))
+    reset_screen()
+
+# 🧹 Clean System
+def clean_system():
+    print(colored("\n🧹 Cleaning system...\n", "yellow"))
+    cmds = [
+        ["sudo", "apt", "autoremove", "-y"],
+        ["sudo", "apt", "clean", "-y"]
+    ]
+    for cmd in cmds:
+        print(colored(f"[+] {' '.join(cmd)}", "cyan"))
+        subprocess.run(cmd)
+    input(colored("\n✅ Clean complete. Press Enter to return to menu...", "cyan"))
+    reset_screen()
+
+# 📄 Show sources.list
+def show_sources():
+    print(colored("\n📄 /etc/apt/sources.list:\n", "yellow"))
+    subprocess.run(["cat", "/etc/apt/sources.list"])
+    input(colored("\n🔁 Press Enter to return to main menu...", "cyan"))
+    reset_screen()
+
+# 📌 Check installed tools
+def check_tools():
+    tools = ["nmap", "wireshark", "metasploit-framework", "john", "hydra"]
+    print(colored("\n📌 Checking common tools...\n", "yellow"))
+    for tool in tools:
+        found = subprocess.call(["which", tool], stdout=subprocess.DEVNULL) == 0
+        status = "✅ Installed" if found else "❌ Not Found"
+        print(f"{tool:<25} → {status}")
+    input(colored("\n🔁 Press Enter to return to main menu...", "cyan"))
+    reset_screen()
+
+# 🧠 Main Menu
+def main():
+    reset_screen()
+    
+    if not is_root():
+        print(colored("⚠️  Please run this script as root (sudo).", "red"))
+        return
+
+    while True:
+        choice = inquirer.select(
+            message="🛠️ What do you want to do?",
+            choices=[
+                "🔄 Update System",
+                "🧹 Clean System",
+                "📋 System Info",
+                "📄 Show sources.list",
+                "📌 Check Installed Tools",
+                "❌ Exit"
+            ],
+            default=None,
+        ).execute()
+
+        if choice == "🔄 Update System":
+            update_system()
+        elif choice == "🧹 Clean System":
+            clean_system()
+        elif choice == "📋 System Info":
+            system_info()
+        elif choice == "📄 Show sources.list":
+            show_sources()
+        elif choice == "📌 Check Installed Tools":
+            check_tools()
+        elif choice == "❌ Exit":
+            print(colored("\nوداعًا يا صديقي ❤️", "green"))
+            break
 
 if __name__ == "__main__":
     main()
