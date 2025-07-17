@@ -1,6 +1,32 @@
-cd /home/username/Desktop/Kali Linux Updater & System Maintenance Tool/
-python3 -m venv myenv
-source myenv/bin/activate
-pip install requests
-chmod +x Codex.py
-sudo python3 Codex.py
+🛠️ HOW TO INSTALL AND RUN CODEX
+
+To install and run this tool:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ STEP 1: Open Terminal and go to the tool folder
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+cd /path/to/Codex4665
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ STEP 2: Run the installer script
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+chmod +x install_codex.sh
+./install_codex.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ STEP 3: Follow the instructions shown after installation
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The installer will:
+
+✔️ Create a virtual environment  
+✔️ Install all required Python libraries  
+✔️ Show you the final command to run CODEX  
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 That’s it! Just follow the instructions, and the tool will be ready to use.
+
+By: Belal Ahmed 🛡️
