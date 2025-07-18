@@ -93,14 +93,31 @@ def show_sources():
     input(colored("\n🔁 Press Enter to return to main menu...", "cyan"))
     reset_screen()
 
-# 📌 Check installed tools
+# 📌 Check and Auto-Install Tools (Fixed)
 def check_tools():
-    tools = ["nmap", "wireshark", "metasploit-framework", "john", "hydra"]
+    tools = {
+        "nmap": "nmap",
+        "wireshark": "wireshark",
+        "msfconsole": "metasploit-framework",  # ✅ صحيح
+        "john": "john",
+        "hydra": "hydra"
+    }
+
     print(colored("\n📌 Checking common tools...\n", "yellow"))
-    for tool in tools:
-        found = subprocess.call(["which", tool], stdout=subprocess.DEVNULL) == 0
-        status = "✅ Installed" if found else "❌ Not Found"
-        print(f"{tool:<25} → {status}")
+
+    for cmd, package in tools.items():
+        found = subprocess.call(["which", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
+
+        if found:
+            print(f"{cmd:<25} → ✅ Installed")
+        else:
+            print(f"{cmd:<25} → ❌ Not Found")
+            choice = input(colored(f"🔧 Do you want to install {package}? (y/n): ", "cyan"))
+            if choice.strip().lower() == "y":
+                print(colored(f"📦 Installing {package}...\n", "yellow"))
+                subprocess.run(["sudo", "apt", "install", "-y", package])
+                print(colored(f"✅ {package} installation complete.\n", "green"))
+
     input(colored("\n🔁 Press Enter to return to main menu...", "cyan"))
     reset_screen()
 
